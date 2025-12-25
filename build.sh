@@ -1,28 +1,28 @@
 #!/bin/bash
 set -e
 
-echo "🍋 Welcome to the LemonzOS Kitchen!"
+echo "🍋 LemonzOS: Final Polish Version"
 
-# 1. FIX: Install the keyring so the build doesn't get confused
+# 1. Fix the keys again
 sudo apt-get install -y debian-archive-keyring
 
-# 2. Clean up from last time
+# 2. Complete Reset
 sudo lb clean --all
+rm -rf config/
 
-# 3. Configure (The macOS/Deepin Formula)
+# 3. Configure (The bare essentials)
 lb config \
     --mode debian \
     --distribution bookworm \
     --archive-areas "main contrib non-free non-free-firmware" \
-    --image-name "LemonzOS-v1" \
-    --memtest none \
-    --debian-installer false
+    --debian-installer false \
+    --apt-recommends false
 
-# 4. Setup Folders
+# 4. Folders
 mkdir -p config/package-lists
 mkdir -p config/includes.chroot/etc/gtk-3.0
 
-# 5. Apps list (Keeping it light so it finishes faster)
+# 5. The App List
 cat <<EOF > config/package-lists/lemonz.list.chroot
 live-boot
 live-config
@@ -33,13 +33,13 @@ arc-theme
 papirus-icon-theme
 EOF
 
-# 6. macOS UI Settings
+# 6. The macOS Theme
 cat <<EOF > config/includes.chroot/etc/gtk-3.0/settings.ini
 [Settings]
 gtk-theme-name=Arc-Dark
 gtk-icon-theme-name=Papirus-Dark
 EOF
 
-# 7. Start the Build
-echo "🚀 Starting the big bake. This takes 15-20 minutes."
+# 7. Build
+echo "🚀 The kitchen is hot! Building now..."
 sudo lb build

@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "🍋 LemonzOS: Final Polish Version"
+echo "🍋 LemonzOS: Anti-Error Build"
 
-# 1. Fix the keys again
+# 1. Standard Fixes
 sudo apt-get install -y debian-archive-keyring
 
-# 2. Complete Reset
+# 2. Hard Reset (Cleaning the pipes)
 sudo lb clean --all
-rm -rf config/
+sudo rm -rf config/
 
-# 3. Configure (The bare essentials)
+# 3. Configure - Added 'DEBIAN_FRONTEND' fix
 lb config \
     --mode debian \
     --distribution bookworm \
@@ -18,28 +18,20 @@ lb config \
     --debian-installer false \
     --apt-recommends false
 
-# 4. Folders
-mkdir -p config/package-lists
-mkdir -p config/includes.chroot/etc/gtk-3.0
+# 4. CRITICAL FIX: This prevents 'Exit Code 100' during package install
+mkdir -p config/includes.chroot/etc/apt/apt.conf.d/
+echo 'Dpkg::Options { "--force-confdef"; "--force-confold"; };' > config/includes.chroot/etc/apt/apt.conf.d/99force-conf
 
-# 5. The App List
+# 5. App List (Cleaned up)
+mkdir -p config/package-lists
 cat <<EOF > config/package-lists/lemonz.list.chroot
 live-boot
 live-config
 live-config-systemd
 dde
 firefox-esr
-arc-theme
-papirus-icon-theme
 EOF
 
-# 6. The macOS Theme
-cat <<EOF > config/includes.chroot/etc/gtk-3.0/settings.ini
-[Settings]
-gtk-theme-name=Arc-Dark
-gtk-icon-theme-name=Papirus-Dark
-EOF
-
-# 7. Build
-echo "🚀 The kitchen is hot! Building now..."
-sudo lb build
+# 6. Build with "Non-Interactive" mode forced
+echo "🚀 Cooking now... No interruptions allowed!"
+sudo DEBIAN_FRONTEND=noninteractive lb build

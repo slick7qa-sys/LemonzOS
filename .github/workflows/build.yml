@@ -1,0 +1,26 @@
+name: Build LemonzOS
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y live-build squashfs-tools xorriso wget
+
+      - name: Run Build Script
+        run: |
+          chmod +x build.sh
+          sudo ./build.sh
+
+      - name: Upload Finished ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: LemonzOS-ISO
+          path: "*.iso"

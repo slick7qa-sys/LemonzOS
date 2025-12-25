@@ -1,16 +1,19 @@
 #!/bin/bash
-# LemonzOS Build Script - Orchestrates the ISO creation
+# LemonzOS Build Script - FIXED VERSION
 set -e
 
 echo "--- Starting LemonzOS Build Process ---"
 
-# 1. Initialize live-build configuration
+# 1. Initialize live-build configuration (FIXED with distribution and mirrors)
 echo "Initializing live-build..."
 lb config \
+    --distribution bookworm \
     --debian-installer false \
-    --archive-areas "main contrib non-free" \
+    --archive-areas "main contrib non-free non-free-firmware" \
     --apt-recommends false \
-    --linux-flavours amd64
+    --linux-flavours amd64 \
+    --mirror-bootstrap "http://deb.debian.org/debian/" \
+    --mirror-chroot "http://deb.debian.org/debian/"
 
 # 2. Create the folder structure
 echo "Creating folders..."
@@ -18,34 +21,26 @@ mkdir -p config/package-lists
 mkdir -p config/includes.chroot/etc/gtk-3.0
 mkdir -p config/includes.chroot/usr/local/bin
 
-# 3. Create the Package List (The Apps)
+# 3. Create the Package List
 echo "Setting up app list..."
 cat <<EOF > config/package-lists/lemonz.list.chroot
-# Core & Desktop
 systemd
 linux-image-amd64
+live-boot
+live-config
 dde
-deepin-desktop-environment
-
-# Apps & Themes
 firefox-esr
-vlc
-gimp
 arc-theme
 papirus-icon-theme
 EOF
 
-# 4. Create the macOS-style GTK config
-echo "Applying macOS theme settings..."
+# 4. Theme settings
 cat <<EOF > config/includes.chroot/etc/gtk-3.0/settings.ini
 [Settings]
 gtk-theme-name=Arc-Dark
 gtk-icon-theme-name=Papirus-Dark
-gtk-font-name=Ubuntu 11
-gtk-cursor-theme-name=Deepin
-gtk-application-prefer-dark-theme=1
 EOF
 
-# 5. Run the actual build
-echo "Building the ISO (this takes time)..."
+# 5. Run the build
+echo "Building the ISO (this should work now)..."
 sudo lb build
